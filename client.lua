@@ -144,7 +144,7 @@ Citizen.CreateThread(function()
 end)
 
 function SimulateGears()
-      
+local engineup = GetVehicleMod(vehicle,11)      
 
     if selectedgear > 0 then
         
@@ -207,6 +207,7 @@ function SimulateGears()
         end
     
     end
+SetVehicleMod(vehicle,11,engineup,false)	
 end
 
 Citizen.CreateThread(function()
