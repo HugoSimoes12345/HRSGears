@@ -75,7 +75,7 @@ Citizen.CreateThread(function()
                     topspeedms = (topspeedGTA * 1.32)/3.6
 
                     acc = GetVehicleHandlingFloat(newveh, "CHandlingData", "fInitialDriveForce")
-                    SetVehicleMaxSpeed(newveh,topspeedms)
+                    --SetVehicleMaxSpeed(newveh,topspeedms)
                     selectedgear = 0
                     Citizen.Wait(50)
                     ready = true
@@ -92,7 +92,7 @@ function resetvehicle()
     SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
     SetVehicleHighGear(vehicle, numgears)
     ModifyVehicleTopSpeed(vehicle,1)
-    SetVehicleMaxSpeed(vehicle,topspeedms)
+    --SetVehicleMaxSpeed(vehicle,topspeedms)
     SetVehicleHandbrake(vehicle, false)
     
     vehicle = nil
@@ -107,6 +107,17 @@ function resetvehicle()
     ready = false
 end
 
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0) 
+        if manualon == true and vehicle ~= nil then
+        DisableControlAction(0, 80, true)
+        DisableControlAction(0, 21, true)
+        end
+    end
+
+end)
+
 
 Citizen.CreateThread(function()
     while true do
@@ -115,8 +126,7 @@ Citizen.CreateThread(function()
         if manualon == true and vehicle ~= nil then
 
             if vehicle ~= nil then
-                DisableControlAction(0, 80, true)
-                DisableControlAction(0, 21, true)
+
 
             
             -- Shift up and down
@@ -131,7 +141,11 @@ Citizen.CreateThread(function()
                         end
                     elseif IsDisabledControlJustPressed(0, 80) then
                         if selectedgear > -1 then
+                           
+                            DisableControlAction(0, 71, true)
+                            Wait(300)
                             selectedgear = selectedgear - 1
+                            DisableControlAction(0, 71, false)
                             SimulateGears()
                         end
                     end
@@ -143,8 +157,11 @@ Citizen.CreateThread(function()
     end
 end)
 
+
+
 function SimulateGears()
-local engineup = GetVehicleMod(vehicle,11)      
+
+    local engineup = GetVehicleMod(vehicle,11)      
 
     if selectedgear > 0 then
         
@@ -176,18 +193,18 @@ local engineup = GetVehicleMod(vehicle,11)
             newtopspeedGTA = topspeedGTA / ratio
             newtopspeedms = topspeedms / ratio
 
-            if GetEntitySpeed(vehicle) > newtopspeedms then
-                selectedgear = selectedgear + 1
-            else
+            --if GetEntitySpeed(vehicle) > newtopspeedms then
+                --selectedgear = selectedgear + 1
+            --else
         
             SetVehicleHandbrake(vehicle, false)
             SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", newacc)
             SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", newtopspeedGTA)
             SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
             ModifyVehicleTopSpeed(vehicle,1)
-            SetVehicleMaxSpeed(vehicle,newtopspeedms)
+            --SetVehicleMaxSpeed(vehicle,newtopspeedms)
             currspeedlimit = newtopspeedms 
-            end
+            --end
 
         end
     elseif selectedgear == 0 then
@@ -203,11 +220,13 @@ local engineup = GetVehicleMod(vehicle,11)
             SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", topspeedGTA)
             SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
             ModifyVehicleTopSpeed(vehicle,1)
-            SetVehicleMaxSpeed(vehicle,topspeedms)
+            
+            --SetVehicleMaxSpeed(vehicle,topspeedms)
         end
     
     end
-SetVehicleMod(vehicle,11,engineup,false)	
+SetVehicleMod(vehicle,11,engineup,false)
+	
 end
 
 Citizen.CreateThread(function()
@@ -279,6 +298,83 @@ Citizen.CreateThread(function()
                 
             disable = false
         end   
+
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+            
+        Citizen.Wait(0)
+        if vehicle ~= nil and selectedgear ~= 0 then 
+            local speed = GetEntitySpeed(vehicle) 
+            
+            if currspeedlimit ~= nil then
+                
+            if speed >= currspeedlimit then
+                local num = GetVehicleNumberOfWheels(vehicle)
+                
+                SetVehicleCurrentRpm(vehicle,1.0)
+                for i = 0 , num ,1 do
+                    --if GetVehicleWheelPower(vehicle,i) > 0.0 then
+                    
+                        local wheelspeed = GetVehicleWheelRotationSpeed(vehicle,i)
+                        if wheelspeed < 0.0 then
+                            if wheelspeed < -currspeedlimit then
+                            SetVehicleWheelRotationSpeed(vehicle,i,-currspeedlimit)
+                            end
+                            --print('ola')
+                        
+                        else 
+                            if wheelspeed > currspeedlimit then
+                            SetVehicleWheelRotationSpeed(vehicle,i,currspeedlimit)
+                            end
+                        end
+                    
+                    --end
+                end
+                SetVehicleCurrentRpm(vehicle,1.0)
+                
+
+            end
+            
+            else
+                
+                if speed >= topspeedms then
+                    local num = GetVehicleNumberOfWheels(vehicle)
+                    
+                    SetVehicleCurrentRpm(vehicle,1.0)
+                    for i = 0 , num ,1 do
+                        --if GetVehicleWheelPower(vehicle,i) > 0.0 then
+                        
+                            local wheelspeed = GetVehicleWheelRotationSpeed(vehicle,i)
+                            if wheelspeed < 0.0 then
+                                if wheelspeed < -topspeedms then
+                                SetVehicleWheelRotationSpeed(vehicle,i,-topspeedms)
+                                end
+                                --print('ola')
+                            
+                            else 
+                                if wheelspeed > topspeedms then
+                                SetVehicleWheelRotationSpeed(vehicle,i,topspeedms)
+                                end
+                            end
+                        
+                        --end
+                    end
+    
+                    SetVehicleCurrentRpm(vehicle,1.0)
+    
+                end
+
+
+            end
+        
+
+            
+        
+        
+        end
 
     end
 end)
