@@ -22,8 +22,10 @@ RegisterCommand("manual", function()
     if vehicle == nil then
         if manualon == false then
             manualon = true
+			--TriggerEvent('chatMessage', '', {255, 255, 255}, '^7' .. 'Manual Mode ON' .. '^7.')
         else
             manualon = false
+			--TriggerEvent('chatMessage', '', {255, 255, 255}, '^7' .. 'Manual Mode OFF' .. '^7.')
         end
     end
 end)
@@ -35,8 +37,10 @@ RegisterCommand("manualmode", function()
         else
             if realistic == true then
                 realistic = false
+				--TriggerEvent('chatMessage', '', {255, 255, 255}, '^7' .. 'Manual Mode SIMPLE' .. '^7.')
             else
                 realistic = true
+				--TriggerEvent('chatMessage', '', {255, 255, 255}, '^7' .. 'Manual Mode REALISTIC' .. '^7.')
             end
         end
     end
@@ -211,9 +215,9 @@ function SimulateGears()
         --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", 0.0)
     elseif selectedgear == -1 then
         
-        if GetEntitySpeedVector(vehicle,true).y > 0.1 then
-            selectedgear = selectedgear + 1
-        else
+        --if GetEntitySpeedVector(vehicle,true).y > 0.1 then
+            --selectedgear = selectedgear + 1
+        --else
             SetVehicleHandbrake(vehicle, false)
             SetVehicleHighGear(vehicle,numgears)    
             SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", acc)
@@ -222,7 +226,7 @@ function SimulateGears()
             ModifyVehicleTopSpeed(vehicle,1)
             
             --SetVehicleMaxSpeed(vehicle,topspeedms)
-        end
+        --end
     
     end
 SetVehicleMod(vehicle,11,engineup,false)
@@ -254,6 +258,8 @@ Citizen.CreateThread(function()
         end
     end
 end)
+
+
 
 
 
@@ -311,59 +317,47 @@ Citizen.CreateThread(function()
             
             if currspeedlimit ~= nil then
                 
-            if speed >= currspeedlimit then
-                local num = GetVehicleNumberOfWheels(vehicle)
-                
-                SetVehicleCurrentRpm(vehicle,1.0)
-                for i = 0 , num ,1 do
-                    --if GetVehicleWheelPower(vehicle,i) > 0.0 then
-                    
-                        local wheelspeed = GetVehicleWheelRotationSpeed(vehicle,i)
-                        if wheelspeed < 0.0 then
-                            if wheelspeed < -currspeedlimit then
-                            SetVehicleWheelRotationSpeed(vehicle,i,-currspeedlimit)
-                            end
-                            --print('ola')
-                        
-                        else 
-                            if wheelspeed > currspeedlimit then
-                            SetVehicleWheelRotationSpeed(vehicle,i,currspeedlimit)
-                            end
-                        end
-                    
-                    --end
-                end
-                SetVehicleCurrentRpm(vehicle,1.0)
-                
+                if speed >= currspeedlimit then
 
-            end
+                
+                    SetVehicleHandbrake(vehicle, true)
+                    if IsControlPressed(0, 76) == false then
+                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", 0.0)
+                    else
+                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+                    end
+
+
+                else  
+                    SetVehicleHandbrake(vehicle, false)
+                    if IsControlPressed(0, 76) == false then
+                    
+                    else
+                        SetVehicleHandbrake(vehicle, true)
+                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+                    end  
+            
+                end
             
             else
                 
                 if speed >= topspeedms then
-                    local num = GetVehicleNumberOfWheels(vehicle)
-                    
-                    SetVehicleCurrentRpm(vehicle,1.0)
-                    for i = 0 , num ,1 do
-                        --if GetVehicleWheelPower(vehicle,i) > 0.0 then
-                        
-                            local wheelspeed = GetVehicleWheelRotationSpeed(vehicle,i)
-                            if wheelspeed < 0.0 then
-                                if wheelspeed < -topspeedms then
-                                SetVehicleWheelRotationSpeed(vehicle,i,-topspeedms)
-                                end
-                                --print('ola')
-                            
-                            else 
-                                if wheelspeed > topspeedms then
-                                SetVehicleWheelRotationSpeed(vehicle,i,topspeedms)
-                                end
-                            end
-                        
-                        --end
+                    SetVehicleHandbrake(vehicle, true)
+                    if IsControlPressed(0, 76) == false then
+                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", 0.0)
+                    else
+                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
                     end
     
-                    SetVehicleCurrentRpm(vehicle,1.0)
+    
+                else  
+                    SetVehicleHandbrake(vehicle, false)
+                    if IsControlPressed(0, 76) == false then
+                        
+                    else
+                        SetVehicleHandbrake(vehicle, true)
+                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+                    end 
     
                 end
 
