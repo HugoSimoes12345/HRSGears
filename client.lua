@@ -321,8 +321,23 @@ Citizen.CreateThread(function()
             if currspeedlimit ~= nil then
                 
                 if speed >= currspeedlimit then
-                    SetVehicleCheatPowerIncrease(vehicle,0.0)
-                
+                    
+                    if Config.enginebrake == true then
+                        if speed / currspeedlimit > 1.1 then
+                        --print('dead')
+                        local hhhh = speed / currspeedlimit
+                        SetVehicleCurrentRpm(vehicle,hhhh)
+                        SetVehicleCheatPowerIncrease(vehicle,-100.0)
+                        --SetVehicleBurnout(vehicle,true)
+                        else
+                        --SetVehicleBurnout(vehicle,false)
+                        SetVehicleCheatPowerIncrease(vehicle,0.0)
+                        end
+                    else
+                        SetVehicleCheatPowerIncrease(vehicle,0.0)
+                    end
+                    
+                    
                     --SetVehicleHandbrake(vehicle, true)
                     --if IsControlPressed(0, 76) == false then
                         --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", 0.0)
