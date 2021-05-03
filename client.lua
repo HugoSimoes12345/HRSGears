@@ -294,6 +294,9 @@ Citizen.CreateThread(function()
 end)
 
 
+
+
+
 Citizen.CreateThread(function()
     while true do
             
@@ -318,46 +321,47 @@ Citizen.CreateThread(function()
             if currspeedlimit ~= nil then
                 
                 if speed >= currspeedlimit then
-
+                    SetVehicleCheatPowerIncrease(vehicle,0.0)
                 
-                    SetVehicleHandbrake(vehicle, true)
-                    if IsControlPressed(0, 76) == false then
-                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", 0.0)
-                    else
-                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
-                    end
+                    --SetVehicleHandbrake(vehicle, true)
+                    --if IsControlPressed(0, 76) == false then
+                        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", 0.0)
+                   -- else
+                        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+                    --end
 
 
                 else  
-                    SetVehicleHandbrake(vehicle, false)
-                    if IsControlPressed(0, 76) == false then
+                    --SetVehicleHandbrake(vehicle, false)
+                    --if IsControlPressed(0, 76) == false then
                     
-                    else
-                        SetVehicleHandbrake(vehicle, true)
-                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
-                    end  
+                    --else
+                        --SetVehicleHandbrake(vehicle, true)
+                        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+                    --end  
             
                 end
             
             else
                 
                 if speed >= topspeedms then
-                    SetVehicleHandbrake(vehicle, true)
-                    if IsControlPressed(0, 76) == false then
-                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", 0.0)
-                    else
-                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
-                    end
+                    SetVehicleCheatPowerIncrease(vehicle,0.0)
+                    --SetVehicleHandbrake(vehicle, true)
+                    --if IsControlPressed(0, 76) == false then
+                        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", 0.0)
+                    --else
+                        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+                    --end
     
     
                 else  
-                    SetVehicleHandbrake(vehicle, false)
-                    if IsControlPressed(0, 76) == false then
+                    --SetVehicleHandbrake(vehicle, false)
+                    --if IsControlPressed(0, 76) == false then
                         
-                    else
-                        SetVehicleHandbrake(vehicle, true)
-                        SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
-                    end 
+                    --else
+                        --SetVehicleHandbrake(vehicle, true)
+                        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+                    --end 
     
                 end
 
