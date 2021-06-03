@@ -11,6 +11,86 @@ local currspeedlimit = nil
 local ready = false
 local realistic = false
 
+local function resetvehicle()
+    SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", acc)
+    SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel",topspeedGTA)
+    SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+    SetVehicleHighGear(vehicle, numgears)
+    ModifyVehicleTopSpeed(vehicle,1)
+    --SetVehicleMaxSpeed(vehicle,topspeedms)
+    SetVehicleHandbrake(vehicle, false)
+
+    vehicle = nil
+    numgears = nil
+    topspeedGTA = nil
+    topspeedms = nil
+    acc = nil
+    hash = nil
+    hbrake = nil
+    selectedgear = 0
+    currspeedlimit = nil
+    ready = false
+end
+
+local function SimulateGears()
+    local engineup = GetVehicleMod(vehicle,11)
+
+    if selectedgear > 0 then
+        local ratio
+        if Config.vehicles[hash] ~= nil then
+            if selectedgear ~= 0 and selectedgear ~= nil  then
+                if numgears ~= nil and selectedgear ~= nil then
+                    ratio = Config.vehicles[hash][numgears][selectedgear] * (1/0.9)
+                else
+		    ratio = Config.gears[numgears][selectedgear] * (1/0.9)
+                end
+            end
+        else
+            if selectedgear ~= 0 and selectedgear ~= nil then
+                if numgears ~= nil and selectedgear ~= nil then
+                    ratio = Config.gears[numgears][selectedgear] * (1/0.9)
+                end
+            end
+        end
+
+        if ratio ~= nil then
+            SetVehicleHighGear(vehicle,1)
+            local newacc = ratio * acc
+            local newtopspeedGTA = topspeedGTA / ratio
+            local newtopspeedms = topspeedms / ratio
+
+            --if GetEntitySpeed(vehicle) > newtopspeedms then
+                --selectedgear = selectedgear + 1
+            --else
+
+            SetVehicleHandbrake(vehicle, false)
+            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", newacc)
+            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", newtopspeedGTA)
+            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+            ModifyVehicleTopSpeed(vehicle,1)
+            --SetVehicleMaxSpeed(vehicle,newtopspeedms)
+            currspeedlimit = newtopspeedms
+            --end
+
+        end
+    elseif selectedgear == 0 then
+        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", 0.0)
+    elseif selectedgear == -1 then
+        --if GetEntitySpeedVector(vehicle,true).y > 0.1 then
+            --selectedgear = selectedgear + 1
+        --else
+            SetVehicleHandbrake(vehicle, false)
+            SetVehicleHighGear(vehicle,numgears)
+            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", acc)
+            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", topspeedGTA)
+            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
+            ModifyVehicleTopSpeed(vehicle,1)
+            --SetVehicleMaxSpeed(vehicle,topspeedms)
+        --end
+    end
+    SetVehicleMod(vehicle,11,engineup,false)
+end
+
 RegisterCommand("manual", function()
     if vehicle == nil then
         if manualon == false then
@@ -79,27 +159,6 @@ Citizen.CreateThread(function()
     end
 end)
 
-function resetvehicle()
-    SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", acc)
-    SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel",topspeedGTA)
-    SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
-    SetVehicleHighGear(vehicle, numgears)
-    ModifyVehicleTopSpeed(vehicle,1)
-    --SetVehicleMaxSpeed(vehicle,topspeedms)
-    SetVehicleHandbrake(vehicle, false)
-
-    vehicle = nil
-    numgears = nil
-    topspeedGTA = nil
-    topspeedms = nil
-    acc = nil
-    hash = nil
-    hbrake = nil
-    selectedgear = 0
-    currspeedlimit = nil
-    ready = false
-end
-
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
@@ -142,65 +201,6 @@ Citizen.CreateThread(function()
 
     end
 end)
-
-function SimulateGears()
-    local engineup = GetVehicleMod(vehicle,11)
-
-    if selectedgear > 0 then
-        local ratio
-        if Config.vehicles[hash] ~= nil then
-            if selectedgear ~= 0 and selectedgear ~= nil  then
-                if numgears ~= nil and selectedgear ~= nil then
-                    ratio = Config.vehicles[hash][numgears][selectedgear] * (1/0.9)
-                else
-		    ratio = Config.gears[numgears][selectedgear] * (1/0.9)
-                end
-            end
-        else
-            if selectedgear ~= 0 and selectedgear ~= nil then
-                if numgears ~= nil and selectedgear ~= nil then
-                    ratio = Config.gears[numgears][selectedgear] * (1/0.9)
-                end
-            end
-        end
-
-        if ratio ~= nil then
-            SetVehicleHighGear(vehicle,1)
-            local newacc = ratio * acc
-            local newtopspeedGTA = topspeedGTA / ratio
-            local newtopspeedms = topspeedms / ratio
-
-            --if GetEntitySpeed(vehicle) > newtopspeedms then
-                --selectedgear = selectedgear + 1
-            --else
-
-            SetVehicleHandbrake(vehicle, false)
-            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", newacc)
-            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", newtopspeedGTA)
-            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
-            ModifyVehicleTopSpeed(vehicle,1)
-            --SetVehicleMaxSpeed(vehicle,newtopspeedms)
-            currspeedlimit = newtopspeedms
-            --end
-
-        end
-    elseif selectedgear == 0 then
-        --SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", 0.0)
-    elseif selectedgear == -1 then
-        --if GetEntitySpeedVector(vehicle,true).y > 0.1 then
-            --selectedgear = selectedgear + 1
-        --else
-            SetVehicleHandbrake(vehicle, false)
-            SetVehicleHighGear(vehicle,numgears)
-            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveForce", acc)
-            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel", topspeedGTA)
-            SetVehicleHandlingFloat(vehicle, "CHandlingData", "fHandBrakeForce", hbrake)
-            ModifyVehicleTopSpeed(vehicle,1)
-            --SetVehicleMaxSpeed(vehicle,topspeedms)
-        --end
-    end
-    SetVehicleMod(vehicle,11,engineup,false)
-end
 
 Citizen.CreateThread(function()
     while true do
@@ -324,11 +324,26 @@ Citizen.CreateThread(function()
     end
 end)
 
-
-
-
-
 ---------------debug
+
+local function getinfo(gea)
+    if gea == 0 then
+        return "N"
+    elseif gea == -1 then
+        return "R"
+    else
+        return gea
+    end
+end
+
+local function round(value, numDecimalPlaces)
+	if numDecimalPlaces then
+		local power = 10^numDecimalPlaces
+		return math.floor((value * power) + 0.5) / (power)
+	else
+		return math.floor(value + 0.5)
+	end
+end
 
 Citizen.CreateThread(function()
     Citizen.Wait(100)
@@ -376,27 +391,6 @@ Citizen.CreateThread(function()
         end)
     end
 end)
-
-function getinfo(gea)
-    if gea == 0 then
-        return "N"
-    elseif gea == -1 then
-        return "R"
-    else
-        return gea
-    end
-end
-
-function round(value, numDecimalPlaces)
-	if numDecimalPlaces then
-		local power = 10^numDecimalPlaces
-		return math.floor((value * power) + 0.5) / (power)
-	else
-		return math.floor(value + 0.5)
-	end
-end
-
-
 
 Citizen.CreateThread(function()
     while true do

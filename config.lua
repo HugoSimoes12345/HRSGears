@@ -1,4 +1,4 @@
-Config                            = {}
+Config = {}
 
 ------------------ the last gear allways need to be 0.90!!!!!--------------------------------
 ------------------ gear ratios from 1 to 6 gears vehicle are native GTA V gear ratios and i create the other -------
