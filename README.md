@@ -16,5 +16,5 @@ For more information or if you want a custom resource for your server add me on 
 hugo.simoes.12345#4946
 
 If you want to check my Fivem Survival server enter here
-https://t.co/GnfHNcgfGh
+https://cfx.re/join/r5obzp
 or just search for TBWSurvival
